@@ -1,70 +1,44 @@
 library(seewave)
 library(tuneR)
 
-AcCoIn <- function(waves) {
-    l <- length(waves)
-    out <- c()
-    for(i in 1:l){
-        out <- c(out,ACI(wave[[i]]))
-    }
-    return(out)
-}
-
 NewACI <- function(wave) {
     output <- ACI(wave)
-    print("finished")
+    cat("finished")
     return(output)
 }
-p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
-list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
-
-#Tratamiento
-waves <- lapply(list, readWave)
-waves <- unlist(lapply(waves, mono))
 
 myFFilter <- function(wave, from, to, bandpass) {
     f <- wave@samp.rate
-    wave <- ffilter(wave, f= f, from = from, to = to, bandpass = bandpass)
+    wave <- ffilter(wave, f= f, from = from, to = to, bandpass = bandpass, output = "Wave")
+    cat("finished")
     return(wave)
 }
-waves <- unlist(lapply(waves, myFFilter, from = 8000, to = 9200, bandpass = FALSE ))
 
-
-ACIs <- lapply(newlist, NewACI)
-amplitudes <- lapply(monoWaves, env, envt = "abs", plot = FALSE)
-newlist <- monoWaves[1:10]
-ACIs
-waves
-specs <- lapply(newlist, myspec)
-head(specs[[1]]) 
-
-waves
-# monoACI <- lapply(monoWaves,ACI)
-# stereoACI <- lapply(waves, ACI)
-
-log1p(monoWaves[[1]]@left)
-
-log1p(amplitudes[[1]])
-
-logAmplitudes <- lapply(amplitudes, log1p)
-logFrequencies <- lapply(specs, log1p)
-head(logFrequencies[[1]])
 myspec <- function(wave) {
+    cat("finished")
     return(spec(wave, f = as.numeric(wave@samp.rate), plot = FALSE)[,"y"])
 }
 
-monoWaves
-max(logFrequencies)
-lapply(logFrequencies, max)
-wave <- waves[[1]]
-bb <- wave@left
-head(bb)
-zero <- function(vector)
-destroy <- function(wave) {
-    wave@left <- wave@left*0
-    return(wave)
-}
+#Leer Directorio
+p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
+list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
+shortlist <- list[1:5]
 
-new <- destroy(wave)
-head(new@left)
+#Tratamiento
+waves <- lapply(shortlist, readWave)
+waves <- unlist(lapply(waves, mono))
+waves <- lapply(waves, myFFilter, from = 8000, to = 9200, bandpass = FALSE )
 
+# Verificar que el filtro de frecuencia se haya aplicado
+# spec(waves[[2]], f = as.numeric(waves[[2]]@samp.rate), plot = TRUE)
+
+ACIs <- lapply(newlist, NewACI)
+
+# Tratamiento de Amplitudes (Transformación logarítimca)
+# amplitudes <- lapply(monoWaves, env, envt = "abs", plot = FALSE)
+logAmplitudes <- lapply(amplitudes, log1p)
+# log1p(amplitudes[[1]])
+
+# Tratamiento de Frecuencias (Transformación logarítimca)
+# specs <- lapply(newlist, myspec)
+logFrequencies <- lapply(specs, log1p)
