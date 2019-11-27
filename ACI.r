@@ -2,7 +2,7 @@ library(seewave)
 library(tuneR)
 library(soundecology)
 
-NewACI <- function(wave) {
+newACI <- function(wave) {
     output <- ACI(wave)
     cat("Finished calculating ACI...\n")
     return(output)
@@ -15,17 +15,12 @@ myFFilter <- function(wave, from, to, bandpass) {
     return(wave)
 }
 
-myspec <- function(wave) {
-    cat("Finished getting spec\n")
-    return(spec(wave, f = as.numeric(wave@samp.rate), plot = FALSE)[,"y"])
-}
-
 myBI <- function(wave) {
     invisible(capture.output(output <- bioacoustic_index(wave)))
     return(output$left_area)
 }
 
-IdGroup <- function(BIS, IBmax, IBmin){ 
+idGroup <- function(BIS, IBmax, IBmin){ 
     dif <- IBmax-IBmin
     Silence <- IBmin
     Low <- Silence + (dif/4)
@@ -67,11 +62,11 @@ print(list)
 #Tratamiento
 sink()
 for(i in 1:length(list)){
-    cat("Treating wave #",i,"\n")
+    cat("Treating wave #",i,"/",length(list),"\n")
     wave.og <- mono(readWave(list[i]))
     wave.og <- myFFilter(wave.og,from = 8000, to = 9200, bandpass = FALSE )
     
-    # Normalizar el audio utilizandolo su envoltura absoluta
+    # Normalizar el audio utilizandolo su envolvente absoluta
     # wave.abs <- env(wave.og, envt = "abs", plot = FALSE)
     # wave.abslog.left <- unlist(lapply(wave.abs, logVar, var = 0))
     # wave.abslog <- Wave(left = wave.abslog.left, samp.rate = as.numeric(wave.og@samp.rate))
@@ -91,8 +86,8 @@ for(i in 1:length(list)){
     BIs <- c(BIs,myBI(wave.og))
     BIs.norm <- c(BIs.norm, myBI(wave.norm))
     #Calcular ACI
-    ACIs <- c(ACIs,NewACI(wave.og))
-    ACIs.norm <- c(ACIs.norm,NewACI(wave.norm))
+    ACIs <- c(ACIs,newACI(wave.og))
+    ACIs.norm <- c(ACIs.norm,newACI(wave.norm))
 }
 sink("logs.txt", append = TRUE)
 
