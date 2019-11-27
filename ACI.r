@@ -59,7 +59,7 @@ sink("logs.txt")
 #Leer Directorio
 p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
 list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
-list <- list[20:25]
+# list <- list[20:25]
 
 cat("==List of files analized\n")
 print(list)
@@ -118,7 +118,7 @@ print(Groups)
 Groups.norm <- IdGroup(BIs.norm,IBmax.norm,IBmin.norm)
 Groups.norm <- t(matrix(Groups.norm,nrow=2))
 cat("\n==Normalized BIs Groups\n")
-print(Groups)
+print(Groups.norm)
 
 cat("\n==ACIs calculated\n")
 print(ACIs)
