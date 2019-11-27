@@ -1,0 +1,37 @@
+==List of files analized
+[1] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 27 .wav"
+[2] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 28 .wav"
+[3] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 29 .wav"
+[4] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 3 .wav" 
+[5] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 30 .wav"
+[6] "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/Test 31 .wav"
+
+==BIs calculated
+[1] 1.257199 1.533660 1.560125 1.746704 1.706349 1.782525
+
+==BI group ranges
+Silence 1.257199 , Low 1.38853 , Medium 1.519862 , High 1.651194 , Top 1.782525 
+
+==BIs Groups
+     [,1]     [,2]
+[1,]    1 1.257199
+[2,]    3 1.533660
+[3,]    3 1.560125
+[4,]    4 1.746704
+[5,]    4 1.706349
+[6,]    4 1.782525
+
+==ACIs calculated
+[1] 181.7870 182.0019 181.5939 181.1367 181.9136 180.8601
+
+==Final Table
+     Group       BI      ACI
+[1,]     1 1.257199 181.7870
+[2,]     3 1.533660 182.0019
+[3,]     3 1.560125 181.5939
+[4,]     4 1.746704 181.1367
+[5,]     4 1.706349 181.9136
+[6,]     4 1.782525 180.8601
+
+==Correlation between groups and ACIs
+[1] -0.4320494
