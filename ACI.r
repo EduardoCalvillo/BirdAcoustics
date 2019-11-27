@@ -27,7 +27,8 @@ myBI <- function(wave) {
 }
 
 #Leer Directorio
-p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
+##p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
+p <- "C:/Users/etame/OneDrive/Escritorio/Escuela/Escuela/Acustica/PIA/Session_5/"
 list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
 shortlist <- list[1:5]
 
