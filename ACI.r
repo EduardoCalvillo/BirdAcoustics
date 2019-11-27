@@ -20,7 +20,6 @@ myspec <- function(wave) {
     return(spec(wave, f = as.numeric(wave@samp.rate), plot = FALSE)[,"y"])
 }
 
-
 myBI <- function(wave) {
     invisible(capture.output(output <- bioacoustic_index(wave)))
     return(output$left_area)
@@ -44,25 +43,41 @@ IdGroup <- function(BIS, IBmax, IBmin){
     }
     return(output)
 }
-
+BIs <- c()
+ACIs <-c()
 sink("logs.txt")
 #Leer Directorio
 p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
 list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
-list <- list[20:25]
+# list <- list[20:25]
 cat("==List of files analized\n")
 print(list)
 #Tratamiento
-waves <- lapply(list, readWave)
-waves <- unlist(lapply(waves, mono))
 sink()
-waves <- lapply(waves, myFFilter, from = 8000, to = 9200, bandpass = FALSE )
-sink("logs.txt", append =TRUE)
-# Verificar que el filtro de frecuencia se haya aplicado
-# spec(waves[[2]], f = as.numeric(waves[[2]]@samp.rate), plot = TRUE)
+for(i in 1:length(list)){
+    cat("Treating wave #",i,"\n")
+    wave <- mono(readWave(list[i]))
+    wave <- myFFilter(wave,from = 8000, to = 9200, bandpass = FALSE )
+    # Verificar que el filtro de frecuencia se haya aplicado
+    # spec(waves[[2]], f = as.numeric(waves[[2]]@samp.rate), plot = TRUE)
 
-#Calcular BI
-BIs <- unlist(lapply(waves, myBI))
+    #Calcular BI
+    BIs <- c(BIs,myBI(wave))
+
+    # Tratamiento de Amplitudes (Transformación logarítimca)
+    # amplitudes <- lapply(monoWaves, env, envt = "abs", plot = FALSE)
+    # logAmplitudes <- lapply(amplitudes, log1p)
+    # log1p(amplitudes[[1]])
+
+    # Tratamiento de Frecuencias (Transformación logarítimca)
+    # specs <- lapply(newlist, myspec)
+    # logFrequencies <- lapply(specs, log1p)
+
+    #Calcular ACI
+    ACIs <- c(ACIs,NewACI(wave))
+}
+sink("logs.txt", append = TRUE)
+
 cat("\n==BIs calculated\n")
 print(BIs)
 
@@ -76,19 +91,7 @@ Groups <- IdGroup(BIs,IBmax,IBmin)
 Groups <- t(matrix(Groups,nrow=2))
 cat("\n==BIs Groups\n")
 print(Groups)
-# Tratamiento de Amplitudes (Transformación logarítimca)
-# amplitudes <- lapply(monoWaves, env, envt = "abs", plot = FALSE)
-# logAmplitudes <- lapply(amplitudes, log1p)
-# log1p(amplitudes[[1]])
 
-# Tratamiento de Frecuencias (Transformación logarítimca)
-# specs <- lapply(newlist, myspec)
-# logFrequencies <- lapply(specs, log1p)
-
-#Calcular ACI
-sink()
-ACIs <- unlist(lapply(waves, NewACI))
-sink("logs.txt", append = TRUE)
 cat("\n==ACIs calculated\n")
 print(ACIs)
 
