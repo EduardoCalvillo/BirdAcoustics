@@ -49,7 +49,7 @@ sink("logs.txt")
 #Leer Directorio
 p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
 list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
-# list <- list[20:25]
+list <- list[20:25]
 cat("==List of files analized\n")
 print(list)
 #Tratamiento
@@ -106,3 +106,4 @@ print(correlation)
 # plot(Final[,"Group"],Final[,"ACI"])
 
 sink()
+print("Finished")
