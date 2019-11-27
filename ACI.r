@@ -26,6 +26,25 @@ myBI <- function(wave) {
     return(output$left_area)
 }
 
+IdGroup <- function(BIS, IBmax, IBmin){ 
+    dif <- IBmax-IBmin
+    print(dif)
+    Silence <- IBmin
+    Low <- Silence + (dif/4)
+    Medium <- Low + (dif/4)
+    High <- Medium + (dif/4)
+    cat("S",Silence, "L",Low, "M",Medium, "H",High, "T",IBmax,"\n")
+    output <- c()
+    for(x in 1:length(BIS)){
+        if(BIS[x] >= Silence && BIS[x] <= Low){ id <- 1}
+        if(BIS[x] > Low && BIS[x] <= Medium ){ id <- 2}
+        if(BIS[x] > Medium && BIS[x] <= High ){ id <- 3}
+        if(BIS[x] > High && BIS[x] <= IBmax){ id <- 4}
+        output<- c(output,BIS[x],as.integer(id))
+    }
+    return(output)
+}
+
 #Leer Directorio
 p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
 list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
@@ -40,8 +59,17 @@ waves <- lapply(waves, myFFilter, from = 8000, to = 9200, bandpass = FALSE )
 # spec(waves[[2]], f = as.numeric(waves[[2]]@samp.rate), plot = TRUE)
 
 #Calcular BI
-BIs <- lapply(waves, myBI)
+BIs <- unlist(lapply(waves, myBI))
 BIs
+
+##Id-Indices Min-Max
+IBmax <- max(BIs)
+IBmin <- min(BIs)
+
+#Identificamos el grupo al que pertencere
+#Cada uno de los waves
+Groups <- IdGroup(BIs,IBmax,IBmin)
+t(matrix(Groups,nrow=2))
 
 # Tratamiento de Amplitudes (Transformación logarítimca)
 # amplitudes <- lapply(monoWaves, env, envt = "abs", plot = FALSE)
