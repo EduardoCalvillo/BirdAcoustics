@@ -39,108 +39,123 @@ idGroup <- function(BIS, IBmax, IBmin){
     return(output)
 }
 
-
 logVar <- function(x, var) {
     # print(paste(x,var+1))
     return(log(x+var+1))
 }
-
-BIs <- c()
-ACIs <-c()
-BIs.norm <- c()
-ACIs.norm <-c()
-
-sink("logs.txt")
-#Leer Directorio
-p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes/"
-list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
-# list <- list[20:25]
-
-cat("==List of files analized\n")
-print(list)
-
-#Tratamiento
-sink()
-for(i in 1:length(list)){
-    cat("Treating wave #",i,"/",length(list),"\n")
-    wave.og <- mono(readWave(list[i]))
-    wave.og <- myFFilter(wave.og,from = 8000, to = 9200, bandpass = FALSE )
-    
-    # Normalizar el audio utilizandolo su envolvente absoluta
-    # wave.abs <- env(wave.og, envt = "abs", plot = FALSE)
-    # wave.abslog.left <- unlist(lapply(wave.abs, logVar, var = 0))
-    # wave.abslog <- Wave(left = wave.abslog.left, samp.rate = as.numeric(wave.og@samp.rate))
-    
-    #Se normaliza el audio 
-    m<- abs(min(wave.og@left))
-    wave.norm.left <- unlist(lapply(wave.og@left, logVar, var = m))
-    wave.norm <- Wave(left = wave.norm.left, samp.rate = as.numeric(wave.og@samp.rate), bit = 16)
-
-    #Visualizar sinusoidales
-    # par(mfrow=c(3,1))
-    # plot(wave.og)
-    # plot(wave.norm)
-    # plot(wave.abslog)
-
-    #Calcular BI
-    BIs <- c(BIs,myBI(wave.og))
-    BIs.norm <- c(BIs.norm, myBI(wave.norm))
-    #Calcular ACI
-    ACIs <- c(ACIs,newACI(wave.og))
-    ACIs.norm <- c(ACIs.norm,newACI(wave.norm))
+AE <- function(wave) {
+    invisible(capture.output(result <- acoustic_evenness(wave)))
+    return(result)
 }
-sink("logs.txt", append = TRUE)
 
-cat("\n==BIs calculated\n")
-print(BIs)
+main <- function(threshold = 0.85){
+    #Init
+    BIs <- c()
+    ACIs <-c()
+    BIs.norm <- c()
+    ACIs.norm <-c()
 
-cat("\n==Normalized BIs calculated\n")
-print(BIs.norm)
-
-##Id-Indices Min-Max
-IBmax <- max(BIs)
-IBmin <- min(BIs)
-
-IBmax.norm <- max(BIs.norm)
-IBmin.norm <- min(BIs.norm)
-
-#Identificamos el grupo al que pertence cada uno de los waves
-Groups <- IdGroup(BIs,IBmax,IBmin)
-Groups <- t(matrix(Groups,nrow=2))
-cat("\n==BIs Groups\n")
-print(Groups)
-
-Groups.norm <- IdGroup(BIs.norm,IBmax.norm,IBmin.norm)
-Groups.norm <- t(matrix(Groups.norm,nrow=2))
-cat("\n==Normalized BIs Groups\n")
-print(Groups.norm)
-
-cat("\n==ACIs calculated\n")
-print(ACIs)
-cat("\n==Normalized ACIs calculated\n")
-print(ACIs.norm)
+    #Leer Directorio
+    p <- "C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes29Sep/"
+    list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = TRUE))
+    og.size <- length(list)
+    # list <- list[20:25]
 
 
-Final <- cbind(Groups, ACIs)
-colnames(Final) <- c("Group","BI","ACI")
-cat("\n==Final Table\n")
-print(Final)
+    #Tratamiento
+    for(i in length(list):1){
+        cat("Treating wave #",i,"/",length(list),"\n")
+        wave.og <- mono(readWave(list[i])
+        wave.og <- myFFilter(wave.og,from = 1000, to = 8000, bandpass = TRUE )
+        # # Normalizar el audio utilizandolo su envolvente absoluta
+        # wave.abs <- env(wave.og, envt = "abs", plot = FALSE)
+        # wave.abslog.left <- unlist(lapply(wave.abs, logVar, var = 0))
+        # wave.abslog <- Wave(left = wave.abslog.left, samp.rate = as.numeric(wave.og@samp.rate))
+        
+        #Se normaliza el audio 
+        m<- abs(min(wave.og@left))
+        wave.norm.left <- unlist(lapply(wave.og@left, logVar, var = m))
+        wave.norm <- Wave(left = wave.norm.left, samp.rate = as.numeric(wave.og@samp.rate), bit = 16)
+        
+        # Calcular el AEI para filtrar muestras con grandes cambios de amplitud 
+        AEI.norm <- AE(wave.norm)
+        cat("AEI: ",AEI.norm$aei_left,"\n")
+        if(AEI.norm$aei_left >= threshold){
+            #Visualizar sinusoidales
+            # par(mfrow=c(3,1))
+            # plot(wave.og)
+            # plot(wave.norm)
+            # plot(wave.abslog)
 
-Final.norm <- cbind(Groups.norm, ACIs.norm)
-colnames(Final.norm) <- c("Group","BI","ACI")
-cat("\n==Normalized Final Table\n")
-print(Final.norm)
+            #Calcular BI
+            BIs <- c(BIs,myBI(wave.og))
+            BIs.norm <- c(BIs.norm, myBI(wave.norm))
+            #Calcular ACI
+            ACIs <- c(ACIs,newACI(wave.og))
+            ACIs.norm <- c(ACIs.norm,newACI(wave.norm))
+        } else{
+            cat(list[i], " didn't pass AEI test.\n")
+            list <- list[-i]
+        }
+    }
+    sink("logs29SepFFilter.txt")
+    cat("==List of files analized\n")
+    print(rev(list))
+    cat("==Number of files cut\n")
+    cat((100*(og.size-length(list)))/og.size,"%\n")
 
-correlation <- cor(Final[,"Group"], Final[,"ACI"],method = "spearman")
-cat("\n==Correlation between groups and ACIs\n")
-print(correlation)
+    cat("\n==BIs calculated\n")
+    print(BIs)
 
-correlation.norm <- cor(Final.norm[,"Group"], Final.norm[,"ACI"],method = "spearman")
-cat("\n==Normalized Correlation between groups and ACIs\n")
-print(correlation.norm)
+    cat("\n==Normalized BIs calculated\n")
+    print(BIs.norm)
 
-# plot(Final[,"Group"],Final[,"ACI"])
-# plot(Final.norm[,"Group"],Final.norm[,"ACI"])
+    ##Id-Indices Min-Max
+    IBmax <- max(BIs)
+    IBmin <- min(BIs)
 
-sink()
-print("Finished")
+    IBmax.norm <- max(BIs.norm)
+    IBmin.norm <- min(BIs.norm)
+
+    #Identificamos el grupo al que pertence cada uno de los waves
+    Groups <- idGroup(BIs,IBmax,IBmin)
+    Groups <- t(matrix(Groups,nrow=2))
+    cat("\n==BIs Groups\n")
+    print(Groups)
+
+    Groups.norm <- idGroup(BIs.norm,IBmax.norm,IBmin.norm)
+    Groups.norm <- t(matrix(Groups.norm,nrow=2))
+    cat("\n==Normalized BIs Groups\n")
+    print(Groups.norm)
+
+    cat("\n==ACIs calculated\n")
+    print(ACIs)
+    cat("\n==Normalized ACIs calculated\n")
+    print(ACIs.norm)
+
+
+    Final <- cbind(Groups, ACIs)
+    colnames(Final) <- c("Group","BI","ACI")
+    cat("\n==Final Table\n")
+    print(Final)
+
+    Final.norm <- cbind(Groups.norm, ACIs.norm)
+    colnames(Final.norm) <- c("Group","BI","ACI")
+    cat("\n==Normalized Final Table\n")
+    print(Final.norm)
+
+    correlation <- cor(Final[,"Group"], Final[,"ACI"],method = "spearman")
+    cat("\n==Correlation between groups and ACIs\n")
+    print(correlation)
+
+    correlation.norm <- cor(Final.norm[,"Group"], Final.norm[,"ACI"],method = "spearman")
+    cat("\n==Normalized Correlation between groups and ACIs\n")
+    print(correlation.norm)
+
+    # plot(Final[,"Group"],Final[,"ACI"])
+    # plot(Final.norm[,"Group"],Final.norm[,"ACI"])
+
+    sink()
+    print("Finished")
+    return(Final)
+}
