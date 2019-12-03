@@ -10,6 +10,10 @@ main <- function(threshold = 0.85, delta = 0.5){
     list <- unlist(list.files(path = p, pattern = ".*\\.wav", full.names = FALSE))
     og.size <- length(list)
     # list <- list[11:16]
+    sink("logs.txt")
+    cat("Analysis for files in ", p)
+    sink()
+    
     BIs <- c()
     ACIs <-c()
     BIs.norm <- c()
@@ -50,7 +54,7 @@ main <- function(threshold = 0.85, delta = 0.5){
                 plot(wave.og, main = paste(list[i],"Original Wave"))
                 plot(wave.norm, main = paste(list[i],"Normalized Wave"))
 
-                write.table(transformed.matrix, file = paste(p,".csv",sep=""))
+                write.csv(transformed.matrix, file = paste(list[i],".csv",sep=""))
 
                 #Calcular BI
                 BIs <- c(BIs,myBI(wave.og))
@@ -84,22 +88,22 @@ main <- function(threshold = 0.85, delta = 0.5){
     print(BIs.norm)
 
     ##Id-Indices Min-Max
-    IBmax <- max(BIs)
-    IBmin <- min(BIs)
+    # IBmax <- max(BIs)
+    # IBmin <- min(BIs)
 
-    IBmax.norm <- max(BIs.norm)
-    IBmin.norm <- min(BIs.norm)
+    # IBmax.norm <- max(BIs.norm)
+    # IBmin.norm <- min(BIs.norm)
 
     #Identificamos el grupo al que pertence cada uno de los waves
-    Groups <- idGroup(BIs,IBmax,IBmin)
-    Groups <- t(matrix(Groups,nrow=2))
-    cat("\n==BIs Groups\n")
-    print(Groups)
+    # Groups <- idGroup(BIs,IBmax,IBmin)
+    # Groups <- t(matrix(Groups,nrow=2))
+    # cat("\n==BIs Groups\n")
+    # print(Groups)
 
-    Groups.norm <- idGroup(BIs.norm,IBmax.norm,IBmin.norm)
-    Groups.norm <- t(matrix(Groups.norm,nrow=2))
-    cat("\n==Normalized BIs Groups\n")
-    print(Groups.norm)
+    # Groups.norm <- idGroup(BIs.norm,IBmax.norm,IBmin.norm)
+    # Groups.norm <- t(matrix(Groups.norm,nrow=2))
+    # cat("\n==Normalized BIs Groups\n")
+    # print(Groups.norm)
 
     cat("\n==ACIs calculated\n")
     print(ACIs)
@@ -107,22 +111,22 @@ main <- function(threshold = 0.85, delta = 0.5){
     print(ACIs.norm)
 
 
-    Final <- cbind(Groups, ACIs)
-    colnames(Final) <- c("Group","BI","ACI")
+    Final <- cbind(BIs, ACIs)
+    colnames(Final) <- c("BI","ACI")
     cat("\n==Final Table\n")
     print(Final)
 
-    Final.norm <- cbind(Groups.norm, ACIs.norm)
-    colnames(Final.norm) <- c("Group","BI","ACI")
+    Final.norm <- cbind(BIs.norm, ACIs.norm)
+    colnames(Final.norm) <- c("BI","ACI")
     cat("\n==Normalized Final Table\n")
     print(Final.norm)
 
-    correlation <- cor(Final[,"Group"], Final[,"ACI"],method = "spearman")
-    cat("\n==Correlation between groups and ACIs\n")
+    correlation <- cor(Final[,"BI"], Final[,"ACI"],method = "spearman")
+    cat("\n==Correlation between BIs and ACIs\n")
     print(correlation)
 
-    correlation.norm <- cor(Final.norm[,"Group"], Final.norm[,"ACI"],method = "spearman")
-    cat("\n==Normalized Correlation between groups and ACIs\n")
+    correlation.norm <- cor(Final.norm[,"BI"], Final.norm[,"ACI"],method = "spearman")
+    cat("\n==Normalized Correlation between BIs and ACIs\n")
     print(correlation.norm)
 
     sink()
