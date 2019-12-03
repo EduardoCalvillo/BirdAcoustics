@@ -1,7 +1,7 @@
 library(seewave)
 library(tuneR)
 
-delete <- function(x, threshold.min, threshold.max){
+validateThreshold <- function(x, threshold.min, threshold.max){
     if(x >= threshold.min && x <= threshold.max){
         return(1)
     } else{
@@ -48,14 +48,14 @@ findBird <- function(list, threshold) {
     }
 }
 
-wave <- mono(readWave("C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes06Oct/Test 12 .wav"))
-# wave <- mono(readWave("C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Ruido29Sep/Test 1 .wav"))
+# wave <- mono(readWave("C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Partes06Oct/Test 12 .wav"))
+wave <- mono(readWave("C:/Users/Eduardo Calvillo Uni/Documents/FIME/Topicos Selectos 2/AUDIOS PIA/Ruido29Sep/Test 1 .wav"))
 
-wave.filtered <- ffilter(wave, f = as.numeric(wave@samp.rate), from = 2000, to =8000, bandpass = TRUE, output = "Wave")
+wave.filtered <- ffilter(wave, f = as.numeric(wave@samp.rate), from = 1000, to =8000, bandpass = TRUE, output = "Wave")
 sp <- spectro(wave.filtered, plot = FALSE)
 dbMin <- -23
 dbMax <- -10
-transformed.vector <- mapply(delete, sp$amp, threshold.min = dbMin, threshold.max = dbMax)
+transformed.vector <- mapply(validateThreshold, sp$amp, threshold.min = dbMin, threshold.max = dbMax)
 transformed.matrix <- matrix(transformed.vector, ncol = length(sp$freq), nrow = length(sp$time))
 
 list <- sumOfSuccesses(transformed.matrix)
