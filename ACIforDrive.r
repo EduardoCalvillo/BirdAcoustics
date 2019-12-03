@@ -11,7 +11,7 @@ main <- function(threshold = 0.85, delta = 0.5){
     og.size <- length(list)
     # list <- list[11:16]
     sink("logs.txt")
-    cat("Analysis for files in ", p)
+    cat("Analysis for files in ", p,"\n")
     sink()
     
     BIs <- c()
